@@ -370,11 +370,23 @@
                 space: pressedKeys[' ']
             };
 
-            // 处理移动
-            if (keys.w && player.y > 25) player.y -= player.speed;
-            if (keys.s && player.y < GAME_HEIGHT - 25) player.y += player.speed;
-            if (keys.a && player.x > 25) player.x -= player.speed;
-            if (keys.d && player.x < GAME_WIDTH - 25) player.x += player.speed;
+            // 处理移动并更新方向
+            if (keys.w && player.y > 25) {
+                player.y -= player.speed;
+                player.direction = 0; // 上
+            }
+            if (keys.s && player.y < GAME_HEIGHT - 25) {
+                player.y += player.speed;
+                player.direction = 2; // 下
+            }
+            if (keys.a && player.x > 25) {
+                player.x -= player.speed;
+                player.direction = 3; // 左
+            }
+            if (keys.d && player.x < GAME_WIDTH - 25) {
+                player.x += player.speed;
+                player.direction = 1; // 右
+            }
 
             // 处理射击
             if (keys.space && now - player.lastShot > 300) {
@@ -407,14 +419,17 @@
                 }
 
                 // 边界反弹
-                if (tank.x <= 0 || tank.x >= GAME_WIDTH - tank.width) {
-                    tank.moveDirection = 3 - tank.moveDirection;
+                if (tank.x <= 15 || tank.x >= GAME_WIDTH - 15) {
+                    tank.x = Math.max(15, Math.min(tank.x, GAME_WIDTH - 15));
+                    tank.moveDirection = tank.moveDirection === 1 ? 3 : 1; // 左右反转
                 }
-                if (tank.y <= 0 || tank.y >= 200) {
-                    tank.moveDirection = 5 - tank.moveDirection;
+                if (tank.y <= 15 || tank.y >= 200) {
+                    tank.y = Math.max(15, Math.min(tank.y, 200));
+                    tank.moveDirection = tank.moveDirection === 0 ? 2 : 0; // 上下反转
                 }
 
-                // 随机射击
+                // 更新敌方坦克的朝向
+                tank.direction = tank.moveDirection;
                 if (now - tank.lastShot > 1000 + Math.random() * 2000) {
                     const angle = Math.atan2(player.y - tank.y, player.x - tank.x);
                     shootBullet(tank.x, tank.y, angle, false);
@@ -426,12 +441,6 @@
         // 更新子弹
         function updateBullets() {
             bullets.forEach((bullet, index) => {
-                if (bullet.isPlayer) {
-                    bullet.y -= bullet.speed;
-                } else {
-                    bullet.y += bullet.speed;
-                }
-
                 bullet.x += bullet.vx;
                 bullet.y += bullet.vy;
 
