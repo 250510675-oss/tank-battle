@@ -430,9 +430,10 @@
 
                 // 更新敌方坦克的朝向
                 tank.direction = tank.moveDirection;
+                
+                // 随机射击（使用坦克当前朝向）
                 if (now - tank.lastShot > 1000 + Math.random() * 2000) {
-                    const angle = Math.atan2(player.y - tank.y, player.x - tank.x);
-                    shootBullet(tank.x, tank.y, angle, false);
+                    shootBullet(tank.x, tank.y, tank.direction, false);
                     tank.lastShot = now;
                 }
             });
